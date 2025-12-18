@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
-import { Gift, RefreshCw, Eye, EyeOff, Plus, Trash2, Moon, Sun } from 'lucide-react';
+import { Gift, RefreshCw, Eye, EyeOff, Plus, Trash2, Moon, Sun, Sparkles } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const SecretSantaGenerator = () => {
   const [names, setNames] = useState(['', '']);
@@ -7,6 +11,7 @@ const SecretSantaGenerator = () => {
   const [revealedNames, setRevealedNames] = useState(new Set());
   const [confetti, setConfetti] = useState([]);
   const [darkMode, setDarkMode] = useState(false);
+  const [error, setError] = useState('');
 
   const generateConfetti = () => {
     const pieces = [];
@@ -38,13 +43,14 @@ const SecretSantaGenerator = () => {
     const newNames = [...names];
     newNames[index] = value;
     setNames(newNames);
+    setError('');
   };
 
   const generateAssignments = () => {
     const validNames = names.filter(name => name.trim() !== '');
     
     if (validNames.length < 2) {
-      alert('Please enter at least 2 names!');
+      setError('Please enter at least 2 names!');
       return;
     }
 
@@ -79,8 +85,9 @@ const SecretSantaGenerator = () => {
     if (validAssignment) {
       setAssignments(result);
       setRevealedNames(new Set());
+      setError('');
     } else {
-      alert('Could not generate valid assignments. Please try again!');
+      setError('Could not generate valid assignments. Please try again!');
     }
   };
 
@@ -98,18 +105,19 @@ const SecretSantaGenerator = () => {
     setNames(['', '']);
     setAssignments(null);
     setRevealedNames(new Set());
+    setError('');
   };
 
   return (
-    <div className={`min-h-screen p-8 relative overflow-hidden transition-colors ${
+    <div className={`min-h-screen p-4 md:p-8 relative overflow-hidden transition-colors ${
       darkMode 
-        ? 'bg-gradient-to-br from-gray-900 to-gray-800' 
-        : 'bg-gradient-to-br from-red-50 to-green-50'
+        ? 'bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950' 
+        : 'bg-gradient-to-br from-red-50 via-white to-green-50'
     }`}>
       {confetti.map((piece) => (
         <div
           key={piece.id}
-          className="absolute w-2 h-2 rounded-full animate-fall"
+          className="absolute w-2 h-2 rounded-full animate-fall pointer-events-none"
           style={{
             left: `${piece.left}%`,
             top: '-10px',
@@ -132,172 +140,182 @@ const SecretSantaGenerator = () => {
         }
       `}</style>
 
-      <div className="max-w-2xl mx-auto relative z-10">
-        <div className={`rounded-lg shadow-lg p-8 transition-colors ${
-          darkMode ? 'bg-gray-800' : 'bg-white'
-        }`}>
-          <div className="flex justify-end mb-4">
-            <button
-              onClick={() => setDarkMode(!darkMode)}
-              className={`p-2 rounded-lg transition-colors ${
-                darkMode 
-                  ? 'bg-gray-700 text-yellow-400 hover:bg-gray-600' 
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-            </button>
-          </div>
+      <div className="max-w-3xl mx-auto relative z-10">
+        <Card className={`shadow-2xl ${darkMode ? 'bg-slate-900/90 border-slate-800' : 'bg-white/90 backdrop-blur'}`}>
+          <CardHeader>
+            <div className="flex justify-end mb-2">
+              <Button
+                onClick={() => setDarkMode(!darkMode)}
+                variant="ghost"
+                size="icon"
+                className={darkMode ? 'hover:bg-slate-800' : 'hover:bg-slate-100'}
+              >
+                {darkMode ? <Sun className="w-5 h-5 text-yellow-400" /> : <Moon className="w-5 h-5" />}
+              </Button>
+            </div>
 
-          <div className="text-center mb-8">
-            <div className="flex items-center justify-center gap-3 mb-4">
+            <div className="flex items-center justify-center gap-3 mb-2">
               <Gift className="w-10 h-10 text-red-600" />
-              <h1 className={`text-3xl font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>
+              <CardTitle className={`text-4xl font-bold ${darkMode ? 'text-white' : 'text-slate-900'}`}>
                 Secret Santa
-              </h1>
+              </CardTitle>
               <Gift className="w-10 h-10 text-green-600" />
             </div>
-            <p className={darkMode ? 'text-gray-300' : 'text-gray-600'}>
+            <CardDescription className={`text-center text-lg ${darkMode ? 'text-slate-300' : 'text-slate-600'}`}>
               🎄 Making spirits bright with surprise gift exchanges! 🎅
-            </p>
-          </div>
+            </CardDescription>
+          </CardHeader>
 
-          {!assignments ? (
-            <>
-              <div className="mb-6">
-                <h2 className={`text-xl font-semibold mb-4 ${
-                  darkMode ? 'text-white' : 'text-gray-800'
-                }`}>
-                  Enter Participant Names
-                </h2>
-                <div className="space-y-3">
-                  {names.map((name, index) => (
-                    <div key={index} className="flex gap-2">
-                      <input
-                        type="text"
-                        value={name}
-                        onChange={(e) => updateName(index, e.target.value)}
-                        placeholder={`Person ${index + 1}`}
-                        className={`flex-1 px-4 py-2 border-2 rounded-lg focus:outline-none transition-colors ${
-                          darkMode 
-                            ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-red-400' 
-                            : 'bg-white border-gray-200 text-gray-800 focus:border-red-400'
-                        }`}
-                      />
-                      {names.length > 2 && (
-                        <button
-                          onClick={() => removeNameField(index)}
-                          className={`p-2 rounded-lg transition-colors ${
+          <CardContent className="space-y-6">
+            {error && (
+              <Alert variant="destructive">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+
+            {!assignments ? (
+              <>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className={`w-5 h-5 ${darkMode ? 'text-slate-400' : 'text-slate-600'}`} />
+                    <h3 className={`text-lg font-semibold ${darkMode ? 'text-white' : 'text-slate-900'}`}>
+                      Enter Participant Names
+                    </h3>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    {names.map((name, index) => (
+                      <div key={index} className="flex gap-2">
+                        <Input
+                          type="text"
+                          value={name}
+                          onChange={(e) => updateName(index, e.target.value)}
+                          placeholder={`Person ${index + 1}`}
+                          className={`flex-1 ${
                             darkMode 
-                              ? 'text-red-400 hover:bg-gray-700' 
-                              : 'text-red-600 hover:bg-red-50'
+                              ? 'bg-slate-800 border-slate-700 text-white placeholder:text-slate-500' 
+                              : 'bg-white border-slate-200'
                           }`}
-                        >
-                          <Trash2 className="w-5 h-5" />
-                        </button>
-                      )}
-                    </div>
-                  ))}
-                </div>
-                <button
-                  onClick={addNameField}
-                  className={`mt-4 w-full py-2 border-2 border-dashed rounded-lg transition-colors flex items-center justify-center gap-2 ${
-                    darkMode 
-                      ? 'border-gray-600 text-gray-300 hover:border-green-400 hover:text-green-400' 
-                      : 'border-gray-300 text-gray-600 hover:border-green-400 hover:text-green-600'
-                  }`}
-                >
-                  <Plus className="w-5 h-5" />
-                  Add Another Person
-                </button>
-              </div>
-
-              <button
-                onClick={generateAssignments}
-                className="w-full bg-gradient-to-r from-red-600 to-green-600 text-white py-3 px-6 rounded-lg font-semibold hover:from-red-700 hover:to-green-700 transition-all flex items-center justify-center gap-2"
-              >
-                <RefreshCw className="w-5 h-5" />
-                Generate Secret Santa Assignments
-              </button>
-            </>
-          ) : (
-            <>
-              <div className="space-y-3 mb-6">
-                <h2 className={`text-xl font-semibold mb-4 ${
-                  darkMode ? 'text-white' : 'text-gray-800'
-                }`}>
-                  Assignments (click to reveal)
-                </h2>
-                {Object.entries(assignments).map(([giver, receiver]) => (
-                  <div
-                    key={giver}
-                    className={`p-4 rounded-lg border-2 transition-colors ${
-                      darkMode 
-                        ? 'bg-gradient-to-r from-gray-700 to-gray-700 border-gray-600 hover:border-red-400' 
-                        : 'bg-gradient-to-r from-red-50 to-green-50 border-gray-200 hover:border-red-300'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <span className={`font-semibold ${darkMode ? 'text-white' : 'text-gray-800'}`}>
-                          {giver}
-                        </span>
-                        <span className={darkMode ? 'text-gray-300 mx-2' : 'text-gray-600 mx-2'}>
-                          gives to
-                        </span>
-                        {revealedNames.has(giver) ? (
-                          <span className="font-semibold text-green-600">
-                            {receiver}
-                          </span>
-                        ) : (
-                          <span className={`italic ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
-                            Click to reveal
-                          </span>
+                        />
+                        {names.length > 2 && (
+                          <Button
+                            onClick={() => removeNameField(index)}
+                            variant="ghost"
+                            size="icon"
+                            className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950"
+                          >
+                            <Trash2 className="w-5 h-5" />
+                          </Button>
                         )}
                       </div>
-                      <button
-                        onClick={() => toggleReveal(giver)}
-                        className={`ml-4 p-2 rounded-lg transition-colors ${
-                          darkMode 
-                            ? 'bg-gray-600 hover:bg-gray-500' 
-                            : 'bg-white hover:bg-gray-100'
-                        }`}
-                      >
-                        {revealedNames.has(giver) ? (
-                          <EyeOff className={`w-5 h-5 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`} />
-                        ) : (
-                          <Eye className={`w-5 h-5 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`} />
-                        )}
-                      </button>
-                    </div>
+                    ))}
                   </div>
-                ))}
-              </div>
+                  
+                  <Button
+                    onClick={addNameField}
+                    variant="outline"
+                    className={`w-full border-dashed ${
+                      darkMode 
+                        ? 'border-slate-700 text-slate-300 hover:border-green-500 hover:text-green-400 hover:bg-slate-800' 
+                        : 'border-slate-300 hover:border-green-500 hover:text-green-600'
+                    }`}
+                  >
+                    <Plus className="w-5 h-5 mr-2" />
+                    Add Another Person
+                  </Button>
+                </div>
 
-              <div className="flex gap-3">
-                <button
+                <Button
                   onClick={generateAssignments}
-                  className="flex-1 bg-gradient-to-r from-red-600 to-green-600 text-white py-3 px-6 rounded-lg font-semibold hover:from-red-700 hover:to-green-700 transition-all flex items-center justify-center gap-2"
+                  className="w-full bg-gradient-to-r from-red-600 to-green-600 hover:from-red-700 hover:to-green-700 text-white font-semibold py-6 text-lg"
+                  size="lg"
                 >
-                  <RefreshCw className="w-5 h-5" />
-                  Regenerate
-                </button>
-                <button
-                  onClick={resetAll}
-                  className={`px-6 py-3 border-2 rounded-lg font-semibold transition-colors ${
-                    darkMode 
-                      ? 'border-gray-600 text-gray-300 hover:border-gray-500' 
-                      : 'border-gray-300 text-gray-700 hover:border-gray-400'
-                  }`}
-                >
-                  Start Over
-                </button>
-              </div>
-            </>
-          )}
-        </div>
+                  <RefreshCw className="w-5 h-5 mr-2" />
+                  Generate Secret Santa Assignments
+                </Button>
+              </>
+            ) : (
+              <>
+                <div className="space-y-4">
+                  <h3 className={`text-lg font-semibold ${darkMode ? 'text-white' : 'text-slate-900'}`}>
+                    🎁 Assignments (click to reveal)
+                  </h3>
+                  
+                  <div className="space-y-3">
+                    {Object.entries(assignments).map(([giver, receiver]) => (
+                      <Card
+                        key={giver}
+                        className={`cursor-pointer transition-all hover:shadow-lg ${
+                          darkMode 
+                            ? 'bg-slate-800 border-slate-700 hover:border-red-500' 
+                            : 'bg-gradient-to-r from-red-50 to-green-50 hover:border-red-300'
+                        }`}
+                        onClick={() => toggleReveal(giver)}
+                      >
+                        <CardContent className="p-4">
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1">
+                              <span className={`font-semibold ${darkMode ? 'text-white' : 'text-slate-900'}`}>
+                                {giver}
+                              </span>
+                              <span className={`mx-2 ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
+                                gives to
+                              </span>
+                              {revealedNames.has(giver) ? (
+                                <span className="font-semibold text-green-600">
+                                  {receiver}
+                                </span>
+                              ) : (
+                                <span className={`italic ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>
+                                  Click to reveal
+                                </span>
+                              )}
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleReveal(giver);
+                              }}
+                            >
+                              {revealedNames.has(giver) ? (
+                                <EyeOff className={`w-5 h-5 ${darkMode ? 'text-slate-400' : 'text-slate-600'}`} />
+                              ) : (
+                                <Eye className={`w-5 h-5 ${darkMode ? 'text-slate-400' : 'text-slate-600'}`} />
+                              )}
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
 
-        <div className={`text-center mt-6 text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                <div className="flex gap-3">
+                  <Button
+                    onClick={generateAssignments}
+                    className="flex-1 bg-gradient-to-r from-red-600 to-green-600 hover:from-red-700 hover:to-green-700 text-white font-semibold"
+                    size="lg"
+                  >
+                    <RefreshCw className="w-5 h-5 mr-2" />
+                    Regenerate
+                  </Button>
+                  <Button
+                    onClick={resetAll}
+                    variant="outline"
+                    size="lg"
+                    className={darkMode ? 'border-slate-700 text-slate-300 hover:bg-slate-800' : ''}
+                  >
+                    Start Over
+                  </Button>
+                </div>
+              </>
+            )}
+          </CardContent>
+        </Card>
+
+        <div className={`text-center mt-6 text-sm ${darkMode ? 'text-slate-500' : 'text-slate-600'}`}>
           <p>© 2025 TechStudio (PTY) Ltd. All rights reserved.</p>
         </div>
       </div>
