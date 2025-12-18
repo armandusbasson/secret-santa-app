@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  secret-santa:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: secret-santa-app
+    restart: unless-stopped
+    ports:
+      - "8888:80"
+    networks:
+      - secret-santa-network
+
+networks:
+  secret-santa-network:
+    driver: bridge
