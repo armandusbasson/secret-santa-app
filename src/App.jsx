@@ -8,6 +8,39 @@ const SecretSantaGenerator = () => {
   const [confetti, setConfetti] = useState([]);
   const [darkMode, setDarkMode] = useState(false);
   const [error, setError] = useState('');
+  const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0, progress: 0 });
+
+  // Calculate countdown to Christmas
+  React.useEffect(() => {
+    const calculateCountdown = () => {
+      const now = new Date();
+      const currentYear = now.getFullYear();
+      let christmas = new Date(currentYear, 11, 25); // December 25
+      
+      // If Christmas has passed this year, calculate for next year
+      if (now > christmas) {
+        christmas = new Date(currentYear + 1, 11, 25);
+      }
+      
+      const lastChristmas = new Date(currentYear - 1, 11, 25);
+      const totalYearMs = christmas.getTime() - lastChristmas.getTime();
+      const elapsedMs = now.getTime() - lastChristmas.getTime();
+      const progress = (elapsedMs / totalYearMs) * 100;
+      
+      const diff = christmas.getTime() - now.getTime();
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+      
+      setCountdown({ days, hours, minutes, seconds, progress });
+    };
+    
+    calculateCountdown();
+    const interval = setInterval(calculateCountdown, 1000);
+    
+    return () => clearInterval(interval);
+  }, []);
 
   const generateConfetti = () => {
     const pieces = [];
@@ -164,6 +197,67 @@ const SecretSantaGenerator = () => {
             <p className={`text-lg ${darkMode ? 'text-slate-300' : 'text-slate-600'}`}>
               🎄 Making spirits bright with surprise gift exchanges! 🎅
             </p>
+          </div>
+
+          {/* Christmas Countdown */}
+          <div className={`mb-8 p-6 rounded-xl border-2 ${
+            darkMode 
+              ? 'bg-gradient-to-br from-red-950/30 to-green-950/30 border-red-900/50' 
+              : 'bg-gradient-to-br from-red-50 to-green-50 border-red-200'
+          }`}>
+            <div className="text-center mb-4">
+              <h2 className={`text-2xl font-bold mb-2 ${darkMode ? 'text-white' : 'text-slate-900'}`}>
+                🎅 Countdown to Christmas 🎄
+              </h2>
+              <div className={`text-sm ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
+                {countdown.days} days until December 25th
+              </div>
+            </div>
+            
+            {/* Progress Bar */}
+            <div className={`relative h-8 rounded-full overflow-hidden mb-4 ${
+              darkMode ? 'bg-slate-800' : 'bg-white'
+            }`}>
+              <div 
+                className="h-full bg-gradient-to-r from-red-600 via-green-600 to-red-600 transition-all duration-1000 ease-out relative overflow-hidden"
+                style={{ width: `${countdown.progress}%` }}
+              >
+                <div className="absolute inset-0 bg-white/20 animate-pulse"></div>
+              </div>
+              <div className={`absolute inset-0 flex items-center justify-center text-sm font-semibold ${
+                countdown.progress > 50 ? 'text-white' : darkMode ? 'text-slate-300' : 'text-slate-700'
+              }`}>
+                {countdown.progress.toFixed(1)}% of the year
+              </div>
+            </div>
+            
+            {/* Time Display */}
+            <div className="grid grid-cols-4 gap-2 text-center">
+              <div className={`p-3 rounded-lg ${darkMode ? 'bg-slate-800' : 'bg-white'}`}>
+                <div className={`text-2xl font-bold ${darkMode ? 'text-red-400' : 'text-red-600'}`}>
+                  {countdown.days}
+                </div>
+                <div className={`text-xs ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>Days</div>
+              </div>
+              <div className={`p-3 rounded-lg ${darkMode ? 'bg-slate-800' : 'bg-white'}`}>
+                <div className={`text-2xl font-bold ${darkMode ? 'text-green-400' : 'text-green-600'}`}>
+                  {countdown.hours}
+                </div>
+                <div className={`text-xs ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>Hours</div>
+              </div>
+              <div className={`p-3 rounded-lg ${darkMode ? 'bg-slate-800' : 'bg-white'}`}>
+                <div className={`text-2xl font-bold ${darkMode ? 'text-blue-400' : 'text-blue-600'}`}>
+                  {countdown.minutes}
+                </div>
+                <div className={`text-xs ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>Minutes</div>
+              </div>
+              <div className={`p-3 rounded-lg ${darkMode ? 'bg-slate-800' : 'bg-white'}`}>
+                <div className={`text-2xl font-bold ${darkMode ? 'text-purple-400' : 'text-purple-600'}`}>
+                  {countdown.seconds}
+                </div>
+                <div className={`text-xs ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>Seconds</div>
+              </div>
+            </div>
           </div>
 
           {/* Error Alert */}
