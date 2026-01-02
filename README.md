@@ -9,6 +9,8 @@ A festive web application for generating Secret Santa assignments with a modern,
 - **Privacy Controls**: Toggle visibility to reveal or hide gift recipients
 - **Dark Mode**: Switch between light and dark themes
 - **Confetti Animations**: Celebratory animations when generating assignments
+- **Christmas Countdown Timer**: Live countdown showing days, hours, minutes, and seconds until Christmas Day
+- **Progress Bar**: Visual progress indicator showing how much of the year has elapsed toward Christmas
 - **Responsive Design**: Works seamlessly on desktop and mobile devices
 
 ## Prerequisites
